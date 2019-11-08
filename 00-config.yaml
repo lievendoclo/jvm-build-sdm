@@ -1,3 +1,4 @@
+name: "@atomist/jvm-build-sdm"
 configuration:
   name: "@atomist/jvm-build-sdm"
   sdm:
