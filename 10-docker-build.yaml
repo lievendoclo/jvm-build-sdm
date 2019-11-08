@@ -1,0 +1,41 @@
+docker_build:    
+  test: 
+  - has_file: Dockerfile
+  - is_branch: ^master$
+    
+  depends_on: 
+  - mvn_build
+  - gradle_build
+         
+  goals:   
+  - containers:
+    - name: docker-build
+      image: docker:19.03.4
+      args:
+      - /bin/sh
+      - -c
+      - >-
+        echo "atm:phase=docker build" &&
+        docker build . -f Dockerfile -t atomist/${push.repo.name}:${push.after.sha} &&
+        echo "atm:phase=docker push" &&
+        docker push atomist/${push.repo.name}:${push.after.sha} &&
+        echo '{ "SdmGoal": { "push": { "after": { "images" :[{ "imageName": "atomist/${push.repo.name}:${push.after.sha}" }] } } } }' > $ATOMIST_RESULT
+      volume_mounts:
+      - name: sock
+        mount_path: /var/run/docker.sock
+      secrets:
+        file_mounts:
+        - mount_path: /root/.docker/config.json
+          value:
+            provider:
+              type: docker
+              names:
+              - atomist
+    input:
+    - cache
+    volumes:
+    - name: sock
+      host_path:
+        path: /var/run/docker.sock
+    approval: true
+    retry: true

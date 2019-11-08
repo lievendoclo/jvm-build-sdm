@@ -1,0 +1,5 @@
+configuration:
+  name: "@atomist/jvm-build-sdm"
+  sdm:
+    cache:
+      enabled: true
